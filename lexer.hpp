@@ -42,11 +42,68 @@ public:
 		 int nextTokenLineNum;
 
 		 pair<int, string> NextTokenIs(int tokenType) {
-
+				tuple<int, int, string> res = GetNextToken();
+				int nowLineNum, nowTokenType;
+				string nowToken;
+				tie(nowLineNum, nowTokenType, nowToken) = res;
+				 //syntax error
+				 if (tokenType != nowTokenType)
+				 {
+					 cout << "error at NextTokenIs" << endl;
+					 throw "error at NextTokenIs";
+				 }
+				 return make_pair(nowLineNum, nowToken);
 		 }
-		 int LookAhead() {
-
+		 int LookAhead()
+		 {
+			 //lexer.nextToken* already setted
+			 if (nextTokenLineNum > 0)
+				 return nextTokenType;
+			 //set it
+			 int nowLineNum = lineNum;
+			 tuple<int, int, string> res = GetNextToken();
+			 int ln, tokenType;
+			 string token;
+			 tie(ln, tokenType, token) = res;
+			 lineNum = nowLineNum;
+			 nextTokenLineNum = ln;
+			 nextTokenType = tokenType;
+			 nextToken = token;
+			 return tokenType;
 		 }
+
+		 void LookAheadAndSkip(int expectedType)
+		 {
+			 //get next token
+			 int nowLineNum = lineNum;
+			 tuple<int, int, string> res = GetNextToken();
+			 int ln, tokenType;
+			 string token;
+			 tie(ln, tokenType, token) = res;
+			 //not is expected type, reverse cursor
+			 if (tokenType != expectedType)
+			 {
+				 lineNum = nowLineNum;
+				 nextTokenLineNum = ln;
+				 nextTokenType = tokenType;
+				 nextToken = token;
+			 }
+		 }
+
+		 tuple<int, int, string> GetNextToken()
+		 {
+			 if (nextTokenLineNum > 0)
+			 {
+				 int ln = nextTokenLineNum;
+				 lineNum = nextTokenLineNum;
+				 nextTokenLineNum = 0;
+				 return make_tuple(ln, nextTokenType, nextToken);
+			 }
+			 return MatchToken();
+		 }
+
+		
+
 		 tuple<int, int, string> MatchToken() {
 				 //check ignored
 			 if (isIgnored()) return make_tuple( lineNum,KONG_GE , "Ignored" );
@@ -178,11 +235,13 @@ public:
 			 }
 		 }
 
+
 	};
 
 
 
 private:
+	
 	static bool isletter(char ch) {
 		if (ch <= 'z' && ch >= 'a' || ch <= 'Z' && ch >= 'a') return true;
 		return false;
