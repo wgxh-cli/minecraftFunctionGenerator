@@ -3,20 +3,36 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <regex>
 using namespace std;
+const int TOKEN_NUM = 0;
+int TOKEN_EOF = 1;
+int TOKEN_VAR = 2;// [_A-Za-z][_0-9A-Za-z]*
+int TOKEN_DENG = 3;
+int TOKEN_NUMBER = 4;//^[0-9]*$
+int KUO = 5;
+const int KONG_GE = 6;
+int TOKEN_YINHAO = 7;
+int TOKEN_STR = 8;
+int TOKEN_DUOYINHAO = 9;
+int TOKEN_RIGHT_KUOHAO = 10;
+
+
+map<int, string> tokenNameMap = {
+		{TOKEN_NUM,"%"},
+		{TOKEN_EOF,"EOF"},
+		{TOKEN_VAR,"var"},
+		{TOKEN_DENG,"="},
+		{TOKEN_NUMBER,"number"},
+		{KUO,"("},
+		{KONG_GE," "},
+		{TOKEN_YINHAO,"\""},
+		{TOKEN_STR,"str"},
+		{TOKEN_DUOYINHAO,"\"\""}
+};
 class lexer
 {
 public:
-	int TOKEN_NUM = 0;
-	int TOKEN_EOF = 1;
-	int TOKEN_VAR = 2;// [_A-Za-z][_0-9A-Za-z]*
-	int TOKEN_DENG = 3;
-	int TOKEN_NUMBER = 4;//^[0-9]*$
-	int KUO = 5;
-	int KONG_GE = 6;
-	int TOKEN_YINHAO = 7;
-	int TOKEN_STR = 8;
-	int TOKEN_DUOYINHAO = 9;
 	struct Lexer
 	{
 		 string sourceCode;
@@ -25,16 +41,53 @@ public:
 		 int nextTokenType;
 		 int nextTokenLineNum;
 
-		 map<int, string> NextTokenIs(int tokenType) {
+		 pair<int, string> NextTokenIs(int tokenType) {
 
 		 }
 		 int LookAhead() {
 
 		 }
-		 map<int, int, string> MatchToken() {
-			 if (isIgnored()) {
+		 tuple<int, int, string> MatchToken() {
+				 //check ignored
+			 if (isIgnored()) return make_tuple( lineNum,KONG_GE , "Ignored" );
+				 //finish
+			 if (sourceCode.length() == 0) return make_tuple(lineNum, TOKEN_EOF, tokenNameMap[TOKEN_EOF]);
+				 //check token
+				 switch (sourceCode[0])
+				 {
+				 case '%':
+					 skipsrc(1);
+					 return make_tuple(lineNum, TOKEN_NUM, "%");
+				 case '(':
+					 skipsrc(1);
+					 return make_tuple(lineNum, KUO, "(");
+				 case ')':
+					 skipsrc(1);
+					 return make_tuple(lineNum, TOKEN_RIGHT_KUOHAO, ")");
+				 case '=':
+					 skipsrc(1);
+					 return make_tuple(lineNum, TOKEN_DENG, "=");
+				 case '"':
+					 if (next_code("\"\""))
+					 {
+						 skipsrc(2);
+						 return make_tuple(lineNum, TOKEN_DUOYINHAO, "\"\"");
+					 }
+					 skipsrc(1);
+					 return make_tuple(lineNum, TOKEN_YINHAO, "\"");
+				 }
 
-			 }
+				 // check multiple character token
+				 if (sourceCode[0] == '_' || isletter(sourceCode[0]))
+				 {
+					 string token = scan_name();
+					 return make_tuple(lineNum, TOKEN_VAR, token);
+				 }
+
+				 //unexpected symbol
+				 cout<<"error at matchtoken"<<endl;
+				 throw "error at matchtoken";
+
 		 }
 		 bool next_code(string str) {
 			 int len = str.length() - 1;
@@ -62,6 +115,18 @@ public:
 		 void skipsrc(int n) {
 			 sourceCode = sourceCode.substr(n);
 		 }
+		 string scan_name() {
+			 return regexscantoken(regex("^[_\d\w]+"));
+		 }
+		 string regexscantoken(regex regx) {
+			 smatch res;
+			 if (regex_match(sourceCode, res, regx)) {
+				 skipsrc(res.length());
+				 return res[0];
+			 }
+			 cout << "error at regexscantoken" << endl;
+			 throw "Error at regexscantoken";
+		 }
 		 int GetLineNum()
 		 {
 			 return lineNum;
@@ -84,7 +149,32 @@ public:
 			 };
 			 while (sourceCode.length() > 0)
 			 {
-
+				 {
+					 //isNewLine
+					 if (next_code("\r\n") || next_code("\n\r"))
+					 {
+						 skipsrc(2);
+						 lineNum++;
+						 isIgnored = true;
+					 }
+					 else if (sourceCode[0] == '\r' || sourceCode[0] == '\n')
+					 {
+						 skipsrc(1);
+						 lineNum++;
+						 isIgnored = true;
+					 }
+					 //isWhiteSpace
+					 else if (isWhiteSpace(sourceCode[0]))
+					 {
+						 skipsrc(1);
+						 isIgnored = true;
+					 }
+					 else
+					 {
+						 break;
+				 }
+				 return isIgnored;
+			 }
 			 }
 		 }
 
@@ -93,6 +183,10 @@ public:
 
 
 private:
+	static bool isletter(char ch) {
+		if (ch <= 'z' && ch >= 'a' || ch <= 'Z' && ch >= 'a') return true;
+		return false;
+	}
 	static vector<string> split(string& str, string& pattern)
 	{
 		vector<string> res;
@@ -113,18 +207,7 @@ private:
 
 		return res;
 	}
-	map<int, string> tokenNameMap = {
-		{TOKEN_NUM,"%"},
-		{TOKEN_EOF,"EOF"},
-		{TOKEN_VAR,"var"},
-		{TOKEN_DENG,"="},
-		{TOKEN_NUMBER,"number"},
-		{KUO,"("},
-		{KONG_GE," "},
-		{TOKEN_YINHAO,"\""},
-		{TOKEN_STR,"str"},
-		{TOKEN_DUOYINHAO,"\"\""}
-	};
+	
 };
 
 
