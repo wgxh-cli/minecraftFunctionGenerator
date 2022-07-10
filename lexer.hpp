@@ -244,6 +244,16 @@ public:
 
 
 	};
+	static Lexer* new_lexer(string src) {
+		Lexer* lexer_new = new Lexer();
+		lexer_new->sourceCode = src;
+		lexer_new->lineNum = 1;
+		lexer_new->nextToken = "";
+		lexer_new->nextToken = "";
+		lexer_new->nextTokenType = 1;
+		lexer_new->nextTokenLineNum = 0;
+		return lexer_new;
+	}
 
 
 
@@ -275,5 +285,6 @@ private:
 	}
 	
 };
+
 
 
