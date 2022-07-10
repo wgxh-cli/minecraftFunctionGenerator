@@ -140,6 +140,10 @@ public:
 					 string token = scan_name();
 					 return make_tuple(lineNum, TOKEN_VAR, token);
 				 }
+				 if (sourceCode[0]>='0'&&sourceCode[0]<='9')
+				 {
+					 return make_tuple(lineNum, TOKEN_NUMBER, scan_number());
+				 }
 
 				 //unexpected symbol
 				 cout<<"error at matchtoken"<<endl;
@@ -174,6 +178,9 @@ public:
 		 }
 		 string scan_name() {
 			 return regexscantoken(regex("^[_\d\w]+"));
+		 }
+		 string scan_number() {
+			 return regexscantoken(regex("^[0-9]*$"));
 		 }
 		 string regexscantoken(regex regx) {
 			 smatch res;
