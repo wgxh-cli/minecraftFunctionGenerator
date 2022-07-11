@@ -33,14 +33,19 @@ map<int, string> tokenNameMap = {
 class lexer
 {
 public:
-	struct Lexer
-	{
-		 string sourceCode;
-		 int lineNum;
-		 string nextToken;
-		 int nextTokenType;
-		 int nextTokenLineNum;
-
+	string sourceCode;
+	int lineNum;
+	string nextToken;
+	int nextTokenType;
+	int nextTokenLineNum;
+	lexer(string src) {
+		sourceCode = src;
+		lineNum = 1;
+		nextToken = "";
+		nextToken = "";
+		nextTokenType = 1;
+		nextTokenLineNum = 0;
+	}
 		 pair<int, string> NextTokenIs(int tokenType) {
 				tuple<int, int, string> res = GetNextToken();
 				int nowLineNum, nowTokenType;
@@ -243,17 +248,6 @@ public:
 		 }
 
 
-	};
-	static Lexer* new_lexer(string src) {
-		Lexer* lexer_new = new Lexer();
-		lexer_new->sourceCode = src;
-		lexer_new->lineNum = 1;
-		lexer_new->nextToken = "";
-		lexer_new->nextToken = "";
-		lexer_new->nextTokenType = 1;
-		lexer_new->nextTokenLineNum = 0;
-		return lexer_new;
-	}
 
 
 
