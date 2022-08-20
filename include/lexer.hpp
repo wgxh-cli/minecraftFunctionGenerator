@@ -1,4 +1,3 @@
-#pragma once
 #include <iostream>
 #include <string>
 #include <map>
@@ -84,7 +83,7 @@ public:
 			 tuple<int, int, string> res = GetNextToken();
 			 int ln, tokenType;
 			 string token;
-			 tie(ln, tokenType, token) = res;
+			 std::tie(ln, tokenType, token) = res;
 			 //not is expected type, reverse cursor
 			 if (tokenType != expectedType)
 			 {
@@ -262,7 +261,7 @@ private:
 		vector<string> res;
 		if (str == "")
 			return res;
-		//ÔÚ×Ö·û´®Ä©Î²Ò²¼ÓÈë·Ö¸ô·û£¬·½±ã½ØÈ¡×îºóÒ»¶Î
+		//ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½Ä©Î²Ò²ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½Ò»ï¿½ï¿½
 		string strs = str + pattern;
 		size_t pos = strs.find(pattern);
 
@@ -270,7 +269,7 @@ private:
 		{
 			string temp = strs.substr(0, pos);
 			res.push_back(temp);
-			//È¥µôÒÑ·Ö¸îµÄ×Ö·û´®,ÔÚÊ£ÏÂµÄ×Ö·û´®ÖÐ½øÐÐ·Ö¸î
+			//È¥ï¿½ï¿½ï¿½Ñ·Ö¸ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½,ï¿½ï¿½Ê£ï¿½Âµï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½Ð½ï¿½ï¿½Ð·Ö¸ï¿½
 			strs = strs.substr(pos + 1, strs.size());
 			pos = strs.find(pattern);
 		}
