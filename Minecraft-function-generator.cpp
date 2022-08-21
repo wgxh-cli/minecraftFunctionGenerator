@@ -3,12 +3,37 @@
 
 #include <iostream>
 #include <lexer.hpp>
+#include <string>
 using namespace std;
 
 int main()
 {
-    
-    std::cout << "Hello World";
+    string tokentext="%=====";
+   // cin>>tokentext;
+   // std::cout << tokentext;
+    lexer Lexer(tokentext);
+    cout<<Lexer.sourceCode<<endl;
+    cout<<Lexer.LookAhead()<<endl;
+    Lexer.NextTokenIs(Lexer.LookAhead());
+   // Lexer.LookAheadAndSkip(6);
+    cout<<Lexer.sourceCode<<endl;
+    cout<<Lexer.LookAhead()<<endl;
+
+    cout<<Lexer.sourceCode<<endl;
+    //cout<<Lexer.LookAhead();
+   // Lexer.NextTokenIs(0);
+   // while(Lexer.LookAhead()!=6) cout<<Lexer.LookAhead()<<endl,Lexer.NextTokenIs(Lexer.LookAhead());
+ // cout<<Lexer.LookAhead()<<endl;
+  //Lexer.NextTokenIs(Lexer.LookAhead());
+
+  //cout<<Lexer.nextTokenType<<endl;
+//  Lexer.skipsrc(0);
+ // cout<<Lexer.sourceCode<<endl;
+
+    //cout<<Lexer.LookAhead()<<endl;
+
+
+
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
