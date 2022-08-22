@@ -2,12 +2,14 @@
 //
 
 #include <iostream>
-#include <lexer.hpp>
+//#include <lexer.hpp>
 #include <string>
+#include <parser.hpp>
 using namespace std;
 
 int main()
 {
+  /*
     string tokentext="%=====";
    // cin>>tokentext;
    // std::cout << tokentext;
@@ -19,7 +21,7 @@ int main()
     cout<<Lexer.sourceCode<<endl;
     cout<<Lexer.LookAhead()<<endl;
 
-    cout<<Lexer.sourceCode<<endl;
+    cout<<Lexer.sourceCode<<endl;*/
     //cout<<Lexer.LookAhead();
    // Lexer.NextTokenIs(0);
    // while(Lexer.LookAhead()!=6) cout<<Lexer.LookAhead()<<endl,Lexer.NextTokenIs(Lexer.LookAhead());

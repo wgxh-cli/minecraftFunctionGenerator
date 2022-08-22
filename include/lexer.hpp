@@ -4,7 +4,13 @@
 #include <vector>
 #include <regex>
 using namespace std;
-const int TOKEN_NUM = 0;
+
+
+
+class lexer
+{
+public:
+	const int TOKEN_NUM = 0;
 int TOKEN_EOF = 1;
 int TOKEN_VAR = 2;// [_A-Za-z][_0-9A-Za-z]*
 int TOKEN_DENG = 3;
@@ -15,7 +21,6 @@ int TOKEN_YINHAO = 7;
 int TOKEN_STR = 8;
 int TOKEN_DUOYINHAO = 9;
 int TOKEN_RIGHT_KUOHAO = 10;
-
 
 map<int, string> tokenNameMap = {
 		{TOKEN_NUM,"%"},
@@ -29,9 +34,7 @@ map<int, string> tokenNameMap = {
 		{TOKEN_STR,"str"},
 		{TOKEN_DUOYINHAO,"\"\""}
 };
-class lexer
-{
-public:
+
 	string sourceCode;
 	int lineNum;
 	string nextToken;
