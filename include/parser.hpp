@@ -15,11 +15,16 @@ public:
 	{
 		int line_num;
 		string name;
+        int type;
+      //  string value;
+
 	};
 	struct Assignment : public Statement {
 		int line_num;
-		Variable* var;
-		string Str;
+		Variable var;
+        Variable asgnvar;
+        string value;
+        int value_type;//0: value 1: variable 2: null
 	};
 	struct Src
 	{
@@ -42,16 +47,12 @@ public:
 
         pair<Statement, string> parseStatement(lexer *Lexer)
         {
-            Lexer->LookAheadAndSkip(Lexer->KONG_GE);
-         /*   switch (Lexer->LookAhead())
+            Lexer->LookAheadAndSkip(lexer::KONG_GE);
+            switch (Lexer->LookAhead())
             {
-                case lexeTOKEN_PRINT:
-                    return parsePrint(ref Lexer);
-                case lexer.TOKEN_VAR_PREFIX:
-                    return parseAssignment(ref Lexer);
-                default:
-                    return (null, "parseStatement(): unknown Statement.");
-            }*/
+                case lexer::TOKEN_NUM:
+                    return parseAssignment(Lexer);
+            }
         }
 
         
@@ -71,9 +72,46 @@ public:
 
 	pair<Src,string>parse(string code){
 		lexer Lexer=lexer(code);
+        pair<Src,string> src=parseSourceCode(&Lexer);
 		Lexer.NextTokenIs(LEXER.TOKEN_EOF);
+        return src;
 
 	}
+    void parseVariable(lexer *Lexer,Variable *var){
+          switch(Lexer->LookAhead()){
+            case lexer::TOKEN_NUM:
+                Lexer->NextTokenIs(lexer::TOKEN_NUM);
+              //  Lexer->NextTokenIs(lexer::TOKEN_VAR);
+             // asign.var.name
+             var->line_num=Lexer->GetLineNum();
+             var->type=lexer::TOKEN_NUM;
+             var->name=parseName(Lexer);
+
+           //     Lexer->LookAheadAndSkip(lexer::KONG_GE);
+                //if(Lexer->LookAhead()==lexer::TOKEN_SMT_END) asign
+        }
+
+    }
+    string parseName(lexer *Lexer){
+        pair<int,string> varname=Lexer->NextTokenIs(lexer::TOKEN_VAR);
+        return varname.second;
+    }
+    string parseNumber(lexer *Lexer){
+         pair<int,string> varname=Lexer->NextTokenIs(lexer::TOKEN_NUMBER);
+         return varname.second;
+    }
+    pair<Assignment,string>parseAssignment(lexer *Lexer){
+        Assignment asign;
+        asign.line_num=Lexer->GetLineNum();
+        parseVariable(Lexer,&asign.var);
+        Lexer->LookAheadAndSkip(lexer::KONG_GE);
+        Lexer->NextTokenIs(lexer::TOKEN_DENG);
+        Lexer->LookAheadAndSkip(lexer::KONG_GE );
+        asign.value_type=0;
+        if(asign.var.type==lexer::TOKEN_NUM) asign.value=parseNumber(Lexer);
+        Lexer->NextTokenIs(lexer::TOKEN_SMT_END);
+        return make_pair(asign,t);
+    }
 
 
 

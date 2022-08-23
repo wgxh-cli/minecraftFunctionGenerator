@@ -10,17 +10,18 @@ using namespace std;
 class lexer
 {
 public:
-	const int TOKEN_NUM = 0;
-int TOKEN_EOF = 1;
-int TOKEN_VAR = 2;// [_A-Za-z][_0-9A-Za-z]*
-int TOKEN_DENG = 3;
-int TOKEN_NUMBER = 4;//^[0-9]*$
-int KUO = 5;
-const int KONG_GE = 6;
-int TOKEN_YINHAO = 7;
-int TOKEN_STR = 8;
-int TOKEN_DUOYINHAO = 9;
-int TOKEN_RIGHT_KUOHAO = 10;
+		 static const int TOKEN_NUM = 0;
+ static const int TOKEN_EOF = 1;
+ static const int TOKEN_VAR = 2;// [_A-Za-z][_0-9A-Za-z]*
+ static const int TOKEN_DENG = 3;
+ static const int TOKEN_NUMBER = 4;//^[0-9]*$
+ static const int KUO = 5;
+ static const int KONG_GE = 6;
+ static const int TOKEN_YINHAO = 7;
+ static const int TOKEN_STR = 8;
+ static const int TOKEN_DUOYINHAO = 9;
+ static const int TOKEN_RIGHT_KUOHAO = 10;
+ static const int TOKEN_SMT_END=11;
 
 map<int, string> tokenNameMap = {
 		{TOKEN_NUM,"%"},
@@ -35,6 +36,8 @@ map<int, string> tokenNameMap = {
 		{TOKEN_DUOYINHAO,"\"\""}
 };
 
+public:
+
 	string sourceCode;
 	int lineNum;
 	string nextToken;
@@ -48,13 +51,13 @@ map<int, string> tokenNameMap = {
 		nextTokenType = 1;
 		nextTokenLineNum = 0;
 	}
-		 pair<int, string> NextTokenIs(int tokenType) {
+		 pair<int, string> NextTokenIs( int TokenType) {
 				tuple<int, int, string> res = GetNextToken();
 				int nowLineNum, nowTokenType;
 				string nowToken;
 				tie(nowLineNum, nowTokenType, nowToken) = res;
 				 //syntax error
-				 if (tokenType != nowTokenType)
+				 if (TokenType != nowTokenType)
 				 {
 					 cout << "error at NextTokenIs" << endl;
 					 throw "error at NextTokenIs";
@@ -139,6 +142,9 @@ map<int, string> tokenNameMap = {
 					 }
 					 skipsrc(1);
 					 return make_tuple(lineNum, TOKEN_YINHAO, "\"");
+				case ';':
+					skipsrc(1);
+					return make_tuple(lineNum,TOKEN_SMT_END,";");
 				 }
 
 				 // check multiple character token
