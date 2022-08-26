@@ -9,6 +9,13 @@ using namespace std;
 
 int main()
 {
+    string code="";
+    cin>>code;
+    parser Parser;
+    parser::Src ast;
+    
+    pair<parser::Src,string> astande= Parser.parse(code);
+    ast=astande.first;
   /*
     string tokentext="%=====";
    // cin>>tokentext;
