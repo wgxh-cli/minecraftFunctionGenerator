@@ -113,12 +113,14 @@ public:
 	int ln,tt;
 	string t;
 	tie(ln,tt,t)=result;
+	//cout<<tt<<endl;
 //	cout<<tt<<endl;
 		return result;
 	}
 
 	tuple<int, int, string> MatchToken()
 	{
+		
 	//	cout<<sourceCode[0]<<endl;
 		// check ignored
 		if (isIgnored())
@@ -127,7 +129,6 @@ public:
 		if (sourceCode.length() == 0)
 			return make_tuple(lineNum, TOKEN_EOF, tokenNameMap[TOKEN_EOF]);
 		//cout<<sourceCode[0]<<endl;
-		
 		// check token
 		switch (sourceCode[0])
 		{
@@ -299,6 +300,7 @@ public:
                         skipsrc(1);
                         lineNum++;
                         iskong = true;
+						
                     }
                     //isWhiteSpace
                     else if (isWhiteSpace(sourceCode[0]))
@@ -306,6 +308,7 @@ public:
 					//	cout<<"1233"<<endl;
                         skipsrc(1);
                         iskong = true;
+						
                     }
                     else
                     {

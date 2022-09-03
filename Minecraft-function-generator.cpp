@@ -5,17 +5,30 @@
 //#include <lexer.hpp>
 #include <string>
 #include <parser.hpp>
+//#include <stdio.h>
+#include <fstream>
 using namespace std;
 
 int main()
 {
-    string code="";
-    cin>>code;
+  string code="";
+  ifstream f;
+  f.open("t.in");
+  char c[1024]={0};
+  while(f>>c) code=code+c;
+   // freopen("t.in","r",stdin);
+    
+  //  cin>>code;
     parser Parser;
     parser::Src ast;
     
     pair<parser::Src,string> astande= Parser.parse(code);
     ast=astande.first;
+    
+    vector<parser::Statement> stms=ast.statements;
+   // cout<<typeid(stms[0].asgstm).name();
+   for(int i=0;i<stms.size();i++) if(stms[i].type==0) cout<<"Assignment:\nvar_type:"<<stms[i].asgstm.var.type<<"\nvar_name:"<<stms[i].asgstm.var.name<<"\nassignment_type:"<<stms[i].asgstm.value_type<<"\nvalue"<<stms[i].asgstm.value<<endl;
+   
   /*
     string tokentext="%=====";
    // cin>>tokentext;

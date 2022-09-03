@@ -6,31 +6,38 @@
 using namespace std;
 string t="";
 lexer LEXER=lexer("");
-class Statement
-{};
+
 class parser
 {
 public:
-	static struct Variable: public Statement
+
+	struct Variable
 	{
-		int line_num;
-		string name;
-        int type;
+            int line_num;
+		    string name;
+            int type;
       //  string value;
 
 	};
-	static struct Assignment : public Statement {
-		int line_num;
+	struct Assignment {
+        int line_num;
 		Variable var;
         Variable asgnvar;
         string value;
         int value_type;//0: value 1: variable 2: null
 	};
-	static struct Src
+    struct Statement
+{
+   parser:: Variable varstm;
+    parser::Assignment asgstm;
+    int type;
+};
+	struct Src
 	{
-		int line_num;
+        int line_num;
 		vector<Statement> statements;
 	};
+
 	 pair<vector<Statement>, string> parseStatements(lexer *Lexer)
         {
             vector<Statement> statements = vector<Statement>();
@@ -51,7 +58,11 @@ public:
             switch (Lexer->LookAhead())
             {
                 case lexer::TOKEN_NUM:
-                    return parseAssignment(Lexer,lexer::TOKEN_NUM);
+                    pair<Assignment,string> pagn=parseAssignment(Lexer,lexer::TOKEN_NUM);
+                    Statement stm;
+                    stm.asgstm=pagn.first;
+                    stm.type=0;
+                    return make_pair(stm,pagn.second);
             }
         }
 
