@@ -1,0 +1,7 @@
+Asm_stmt: Var '=' Var | value
+name: [_A-Za-z][_0-9A-Za-z]*
+data_type: num_type
+num_type: '%'
+num_value: ^[0-9]*$
+Kongege: ' ' | '\n'
+Var: data_type name Kongge
