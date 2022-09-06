@@ -4,53 +4,60 @@
 #include <vector>
 #include <regex>
 using namespace std;
-
+#define C static inline const int
+//lex token
 class lexer
 {
-public:
-	static inline const int TOKEN_NUM = 0;
-	static inline const int TOKEN_EOF = 1;
-	static inline const int TOKEN_VAR = 2; // [_A-Za-z][_0-9A-Za-z]*
-	static inline const int TOKEN_DENG = 3;
-	static inline const int TOKEN_NUMBER = 4; //^[0-9]*$
-	static inline const int KUO = 5;
-	static inline const int KONG_GE = 6;
-	static inline const int TOKEN_YINHAO = 7;
-	static inline const int TOKEN_STR = 8;
-	static inline const int TOKEN_DUOYINHAO = 9;
-	static inline const int TOKEN_RIGHT_KUOHAO = 10;
-	static inline const int TOKEN_SMT_END = 11;
+	//define token
+	public:
+		C TOKEN_NUM          = 0;
+		C TOKEN_EOF          = 1;
+		C TOKEN_VAR          = 2; // [_A-Za-z][_0-9A-Za-z]*
+		C TOKEN_DENG         = 3;
+		C TOKEN_NUMBER       = 4; //^[0-9]*$
+		C KUO                = 5;
+		C KONG_GE            = 6;
+		C TOKEN_YINHAO       = 7;
+		C TOKEN_STR          = 8;
+		C TOKEN_DUOYINHAO    = 9;
+		C TOKEN_RIGHT_KUOHAO = 10;
+		C TOKEN_SMT_END      = 11;
 
-	map<int, string> tokenNameMap = {
-		{TOKEN_NUM, "%"},
-		{TOKEN_EOF, "EOF"},
-		{TOKEN_VAR, "var"},
-		{TOKEN_DENG, "="},
-		{TOKEN_NUMBER, "number"},
-		{KUO, "("},
-		{KONG_GE, " "},
-		{TOKEN_YINHAO, "\""},
-		{TOKEN_STR, "str"},
-		{TOKEN_DUOYINHAO, "\"\""}};
+		map<int, string> tokenNameMap = {
+			{TOKEN_NUM, "num"},
+			{TOKEN_EOF, "EOF"},
+			{TOKEN_VAR, "var"},
+			{TOKEN_DENG, "="},
+			{TOKEN_NUMBER, "number"},
+			{KUO, "("},
+			{KONG_GE, " "},
+			{TOKEN_YINHAO, "\""},
+			{TOKEN_STR, "str"},
+			{TOKEN_DUOYINHAO, "\"\""}
+		};
+		map<string,int> tokenwordmap={
+			{"num",TOKEN_NUM}
+		};
+		string sourceCode;
+		int lineNum;
+		string nextToken;
+		int nextTokenType;
+		int nextTokenLineNum;
 
 public:
-	string sourceCode;
-	int lineNum;
-	string nextToken;
-	int nextTokenType;
-	int nextTokenLineNum;
 	lexer(string src)
 	{
-		sourceCode = src;
-		lineNum = 1;
-		nextToken = "";
-		nextToken = "";
-		nextTokenType = 1;
+		sourceCode       = src;
+		lineNum          = 1;
+		nextToken        = "";
+		nextToken        = "";
+		nextTokenType    = 1;
 		nextTokenLineNum = 0;
 	}
+	//assert what the  token is,and skip this token
 	pair<int, string> NextTokenIs(int TokenType)
 	{
-		tuple<int, int, string> res = GetNextToken();
+		tuple<int, int, string> res             = GetNextToken();
 		int nowLineNum, nowTokenType;
 		string nowToken;
 		tie(nowLineNum, nowTokenType, nowToken) = res;
@@ -62,6 +69,7 @@ public:
 		}
 		return make_pair(nowLineNum, nowToken);
 	}
+	//get what the token is,dont skip this token.
 	int LookAhead()
 	{
 		// lexer.nextToken* already setted
@@ -72,18 +80,18 @@ public:
 		tuple<int, int, string> res = GetNextToken();
 		int ln, tokenType;
 		string token;
-		tie(ln, tokenType, token) = res;
-		lineNum = nowLineNum;
-		nextTokenLineNum = ln;
-		nextTokenType = tokenType;
-		nextToken = token;
+		tie(ln, tokenType, token)   = res;
+		lineNum                     = nowLineNum;
+		nextTokenLineNum            = ln;
+		nextTokenType               = tokenType;
+		nextToken                   = token;
 		return tokenType;
 	}
-
+	//if the token is expectedType,skip the token,or dont
 	void LookAheadAndSkip(int expectedType)
 	{
 		// get next token
-		int nowLineNum = lineNum;
+		int nowLineNum              = lineNum;
 		tuple<int, int, string> res = GetNextToken();
 		int ln, tokenType;
 		string token;
@@ -92,32 +100,25 @@ public:
 		// not is expected type, reverse cursor
 		if (tokenType != expectedType)
 		{
-			lineNum = nowLineNum;
+			lineNum          = nowLineNum;
 			nextTokenLineNum = ln;
-			nextTokenType = tokenType;
-			nextToken = token;
+			nextTokenType    = tokenType;
+			nextToken        = token;
 		}
 	}
-
+	//get token
 	tuple<int, int, string> GetNextToken()
 	{
 		if (nextTokenLineNum > 0)
 		{
-			int ln = nextTokenLineNum;
-			lineNum = nextTokenLineNum;
+			int ln           = nextTokenLineNum;
+			lineNum          = nextTokenLineNum;
 			nextTokenLineNum = 0;	
 			return make_tuple(ln, nextTokenType, nextToken);
 		}
-	//	cout<<"need to matchtoken"<<endl;
-	tuple<int,int,string> result=MatchToken();
-	int ln,tt;
-	string t;
-	tie(ln,tt,t)=result;
-	//cout<<tt<<endl;
-//	cout<<tt<<endl;
-		return result;
+		return MatchToken();
 	}
-
+	
 	tuple<int, int, string> MatchToken()
 	{
 		
@@ -132,9 +133,9 @@ public:
 		// check token
 		switch (sourceCode[0])
 		{
-		case '%':
+	/*	case '%':
 			skipsrc(1);
-			return make_tuple(lineNum, TOKEN_NUM, "%");
+			return make_tuple(lineNum, TOKEN_NUM, "%");*/
 		case '(':
 			skipsrc(1);
 			return make_tuple(lineNum, KUO, "(");
@@ -155,6 +156,10 @@ public:
 		case ';':
 			skipsrc(1);
 			return make_tuple(lineNum, TOKEN_SMT_END, ";");
+		case 'n':
+
+			if(sourceCode[1]=='u' && sourceCode[2]=='m') {skipsrc(3);cout<<sourceCode;return make_tuple(lineNum,TOKEN_NUM,"num");};
+		
 		}
 		
 
@@ -221,10 +226,7 @@ public:
 			name=name+sourceCode[0];
 			skipsrc(1);
 		}
-	//	cout<<name;
 		return name;
-		//std::regex t("[a-z]+");
-		//return regexscantoken(t);
 	}
 	string scan_number()
 	{
@@ -236,9 +238,7 @@ public:
 			name=name+sourceCode[0];
 			skipsrc(1);
 		}
-	//	cout<<name;
 		return name;
-	//	return regexscantoken(regex("^[0-9]*$"));
 	}
 	string regexscantoken(regex regx)
 	{
@@ -250,7 +250,6 @@ public:
 		}
 		cout << "error at regexscantoken" << endl;
 		cout<<"at "<<lineNum<<endl;
-		//cout<<sourceCode<<res[0];
 		 throw "Error at regexscantoken";
 	}
 	int GetLineNum()

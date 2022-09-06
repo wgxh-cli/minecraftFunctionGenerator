@@ -7,6 +7,7 @@
 #include <parser.hpp>
 //#include <stdio.h>
 #include <fstream>
+#include <backend.hpp>
 using namespace std;
 
 int main()
@@ -17,18 +18,23 @@ int main()
   char c[1024]={0};
   while(f>>c) code=code+c;
    // freopen("t.in","r",stdin);
-    
+   string codee;
+   backend b;
+   codee=b.Execute(code);
+   
+   cout<<codee;
   //  cin>>code;
-    parser Parser;
+ /*   parser Parser;
     parser::Src ast;
     
     pair<parser::Src,string> astande= Parser.parse(code);
     ast=astande.first;
     
     vector<parser::Statement> stms=ast.statements;
-   // cout<<typeid(stms[0].asgstm).name();
+    
+ //   cout<<typeid(stms[0].asgstm).name();
    for(int i=0;i<stms.size();i++) if(stms[i].type==0) cout<<"Assignment:\nvar_type:"<<stms[i].asgstm.var.type<<"\nvar_name:"<<stms[i].asgstm.var.name<<"\nassignment_type:"<<stms[i].asgstm.value_type<<"\nvalue"<<stms[i].asgstm.value<<endl;
-   
+   */
   /*
     string tokentext="%=====";
    // cin>>tokentext;

@@ -12,6 +12,6 @@ include_directories(include)
 # configure_file(mcfunction_generator.h.in lexer.hpp)
 
 # add the executable 
-add_executable(build_test Minecraft-function-generator.cpp include/lexer.hpp include/parser.hpp) 
+add_executable(build_test Minecraft-function-generator.cpp include/lexer.hpp include/parser.hpp include/backend.hpp) 
 
 # target_include_directories(mcfunction_generator PUBLIC Minecraft-function-generator.cpp lexer.hpp)

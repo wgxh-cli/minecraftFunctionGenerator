@@ -30,7 +30,7 @@ public:
 {
    parser:: Variable varstm;
     parser::Assignment asgstm;
-    int type;
+    int type;//0 asg 1 var
 };
 	struct Src
 	{
@@ -85,6 +85,7 @@ public:
 		lexer Lexer=lexer(code);
         pair<Src,string> src=parseSourceCode(&Lexer);
 		Lexer.NextTokenIs(LEXER.TOKEN_EOF);
+        cout<<"123"<<endl;
         return src;
 
 	}
@@ -92,9 +93,17 @@ public:
           switch(token){
             case lexer::TOKEN_NUM:
                 Lexer->NextTokenIs(lexer::TOKEN_NUM);
+                   
+              //  Lexer->LookAheadAndSkip(lexer::KONG_GE);
+                    
+            //    cout<<"ok"<<endl;
+           
+            //    cout<<"123";
               //  Lexer->NextTokenIs(lexer::TOKEN_VAR);
              // asign.var.name
+          
              var->line_num=Lexer->GetLineNum();
+            // cout<<"123";
              var->type=lexer::TOKEN_NUM;
              var->name=parseName(Lexer);
           //   cout<<var->type<<endl;
@@ -118,16 +127,20 @@ public:
         Assignment asign;
         asign.line_num=Lexer->GetLineNum();
         parseVariable(Lexer,&asign.var,token);
+       
+       // cout<<"123";
      //   cout<<"1"<<endl;
         Lexer->LookAheadAndSkip(lexer::KONG_GE);
         Lexer->NextTokenIs(lexer::TOKEN_DENG);
       // cout<<"1"<<endl;
         Lexer->LookAheadAndSkip(lexer::KONG_GE );
+        
      //   cout<<"1"<<endl;
         asign.value_type=0;
         if(asign.var.type==lexer::TOKEN_NUM) asign.value=parseNumber(Lexer);
       //  cout<<"1"<<endl;
         Lexer->NextTokenIs(lexer::TOKEN_SMT_END);
+         
         return make_pair(asign,t);
     }
 
