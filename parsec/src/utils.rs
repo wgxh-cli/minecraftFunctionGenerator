@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::marker::PhantomData;
 use crate::prelude::*;
 
@@ -43,11 +44,31 @@ pub fn map<'a, I: 'a + Clone, A: 'a + Clone, B: 'a + Clone>(
   }
 }
 
+pub struct Or<'a, I: 'a + Clone, O: 'a + Clone> {
+  parser_a: BoxedParser<'a, I, O>,
+  parser_b: BoxedParser<'a, I, O>,
+}
+impl<'a, I: 'a + Clone, O: 'a + Clone> Parser<'a, I, O> for Or<'a, I, O> {
+  fn parse(&self, input: I) -> ParseResult<'a, I, O> {
+    self.parser_a.parse(input.clone()).or_else(|_| {
+      self.parser_b.parse(input.clone())
+    })
+  }
+}
+pub fn or<'a, I: 'a + Clone, O: 'a + Clone>(
+  parser_a: impl Parser<'a, I, O> + 'a,
+  parser_b: impl Parser<'a, I, O> + 'a,
+) -> Or<'a, I, O> {
+  Or {
+    parser_a: BoxedParser::new(parser_a),
+    parser_b: BoxedParser::new(parser_b),
+  }
+}
+
 pub struct OrDefault<'a, I: 'a + Clone, O: 'a + Clone> {
   parser: Box<dyn Parser<'a, I, O> + 'a>,
   default: O,
 }
-
 impl<'a, I: 'a + Clone, O: 'a + Clone> Parser<'a, I, O> for OrDefault<'a, I, O> {
   fn parse(&self, input: I) -> ParseResult<'a, I, O> {
     self.parser
@@ -55,7 +76,6 @@ impl<'a, I: 'a + Clone, O: 'a + Clone> Parser<'a, I, O> for OrDefault<'a, I, O> 
       .or_else(|_| Ok(ResultData::new(input, self.default.clone())))
   }
 }
-
 pub fn or_default<'a, I, O>(
   parser: impl Parser<'a, I, O> + 'a,
   default: O
@@ -75,7 +95,7 @@ pub struct And<'a, I: 'a, A: 'a, B: 'a> {
   parser_b: Box<dyn Parser<'a, I, B> + 'a>,
 }
 
-impl<'a, I: 'a + Clone, A: 'a + Clone, B: 'a + Clone> Parser<'a, I, (A, B)> for And<'a, I, A, B> {
+impl<'a, I: 'a + Clone + Debug, A: 'a + Clone + Debug, B: 'a + Clone> Parser<'a, I, (A, B)> for And<'a, I, A, B> {
   fn parse(&self, input: I) -> ParseResult<'a, I, (A, B)> {
     self.parser_a.parse(input).and_then(|a| {
       self.parser_b.parse(a.remain).map(|b| {
@@ -98,18 +118,6 @@ pub fn and<'a, I: Clone, A: Clone, B: Clone>(
   }
 }
 
-//fn first<'a, O: 'a>(os: &'a Vec<O>) -> &'a O {
-//  os.iter()
-//    .nth(0)
-//    .unwrap()
-//}
-//
-//fn last<O>(os: &Vec<O>) -> &O {
-//  os.iter()
-//    .nth_back(0)
-//    .unwrap()
-//}
-
 pub struct Only<'a, I: 'a + Clone, D: 'a + Clone> {
   return_value: D,
   _marker: PhantomData<&'a I>
@@ -131,24 +139,63 @@ pub fn only<'a, I: 'a + Clone, D: 'a + Clone>(return_value: D) -> Only<'a, I, D>
   Only::new(return_value)
 }
 
-//pub struct Pipe<'a, I: 'a + Clone, O: 'a + Clone> {
-//  parsers: Vec<BoxedParser<'a, I, O>>,
-//}
-//impl<'a, I: 'a + Clone, O: 'a + Clone> Pipe<'a, I, O> {
-//  pub fn pipe(&'a mut self, parser: impl Parser<'a, I, O> + 'a) -> &'a Self {
-//    self.parsers.push(BoxedParser::new(parser));
-//    self
-//  }
-//}
-//impl<'a, I: 'a + Clone, O: 'a + Clone> Parser<'a, I, Vec<O>> for Pipe<'a, I, O> {
-//  fn parse(&'a mut self, input: I) -> ParseResult<'a, I, Vec<O>> {
-//    let first_parser = BoxedParser::new(map(first(&self.parsers), |a| vec![a]));
-//    let mut a = &self.parsers.into_iter()
-//      .fold(first_parser, |acc, parser| {
-//        BoxedParser::new(map(and(acc, parser), |(rs, r)| {
-//          once(r).chain(rs.into_iter()).collect()
-//        }))
-//      });
-//    a.parse(input)
-//  }
-//}
+pub fn some<'a, I: 'a + Clone, O: 'a + Clone>(parser: impl Parser<'a, I, O>) -> impl Parser<'a, I, Vec<O>> {
+  move |input: I| -> ParseResult<'a, I, Vec<O>> {
+    let mut results: Vec<O> = vec![];
+    let mut next_input: I = input;
+    while let Ok(result) = parser.parse(next_input.clone()) {
+      next_input = result.remain;
+      results.push(result.output);
+    }
+    Ok(ResultData::new(next_input, results))
+  }
+}
+
+pub fn filter<'a, I: 'a + Clone, O: 'a + Clone>(
+  parser: impl Parser<'a, I, O> + 'a,
+  condition: impl Fn(ResultData<'a, I, O>) -> bool)  -> impl Parser<'a, I, O> {
+  move |input: I| -> ParseResult<'a, I, O> {
+    parser.parse(input)
+      .ok()
+      .filter(|a| condition(a.to_owned()))
+      .ok_or_else(|| "".to_string())
+  }
+}
+
+pub fn to_option<'a, I: 'a + Clone, O: 'a + Clone>(parser: impl Parser<'a, I, O>) -> impl Parser<'a, I, Option<O>> {
+  move |input: I| -> ParseResult<'a, I, Option<O>> {
+    let result = parser.parse(input.clone());
+    result.to_owned()
+      .map(|result_data| {
+        ResultData::new(
+          result_data.remain,
+          result.ok().map(|result_data| {
+            result_data.output
+        }))
+      })
+      .or_else(|_| {
+        Ok(ResultData::new(input, None))
+      })
+  }
+}
+
+pub trait ParserExt<'a, I: 'a + Clone, O: 'a + Clone>: Parser<'a, I, O>
+where Self: Sized + 'a
+{
+  fn map<B: 'a + Clone>(self, map_fn: impl Fn(O) -> B + 'a) -> Map<'a, I, O, B> {
+    map(self, map_fn)
+  }
+
+  fn and<B: 'a + Clone>(self, parser_b: impl Parser<'a, I, B> + 'a) -> And<'a, I, O, B> {
+    and(self, parser_b)
+  }
+
+  fn or(self, another: impl Parser<'a, I, O> + 'a) -> Or<'a, I, O> {
+    or(self, another)
+  }
+}
+
+impl<'a, I: 'a + Clone, O: 'a + Clone, P> ParserExt<'a, I, O> for P
+where P: Parser<'a, I, O> + 'a
+{}
+

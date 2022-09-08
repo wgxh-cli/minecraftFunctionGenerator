@@ -1,7 +1,7 @@
-use std::marker::PhantomData;
-
 pub mod utils;
 pub mod prelude;
+
+use std::marker::PhantomData;
 
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct ResultData<'a, I: 'a + Clone, O: 'a + Clone> {
@@ -40,3 +40,4 @@ where F: Fn(I) -> ParseResult<'a, I, O>
     self(input)
   }
 }
+
