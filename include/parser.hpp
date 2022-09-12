@@ -16,6 +16,7 @@ public:
             int line_num;
 		    string name;
             int type;
+            string value;
       //  string value;
 
 	};
@@ -136,8 +137,10 @@ public:
         Lexer->LookAheadAndSkip(lexer::KONG_GE );
         
      //   cout<<"1"<<endl;
-        asign.value_type=0;
-        if(asign.var.type==lexer::TOKEN_NUM) asign.value=parseNumber(Lexer);
+     if(Lexer->LookAhead()==lexer::TOKEN_VAR) asign.value_type=1;else asign.value_type=0;
+      //  asign.value_type=0;
+        if(asign.var.type==lexer::TOKEN_NUM && asign.value_type==0) asign.var.value=asign.value=parseNumber(Lexer);
+        if(asign.var.type==lexer::TOKEN_NUM && asign.value_type==1) asign.asgnvar.line_num=Lexer->GetLineNum(),asign.asgnvar.name=parseName(Lexer);
       //  cout<<"1"<<endl;
         Lexer->NextTokenIs(lexer::TOKEN_SMT_END);
          
